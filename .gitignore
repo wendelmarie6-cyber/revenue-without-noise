@@ -24,3 +24,6 @@ node_modules/
 # Any other env file holds secrets too; only the example is shared
 .env.*
 !.env.example
+
+# TypeScript incremental build state
+tsconfig.tsbuildinfo
