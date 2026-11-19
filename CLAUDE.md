@@ -29,6 +29,7 @@ the allowed alternatives **membership site** plus **bookable paid service**:
 | Roundtable seat (one seat at one industry table) | one-off | 39 € |
 | Partner Fit Session (60 min: which partner types fit, and who first) | service | 190 € |
 | Partner GTM Sprint (two weeks: partner ICP, shortlist, first intros) | service | 1,900 € |
+| Partner GTM Bootcamp (one day, 20 founders; price confirmed 18 Nov 2026) | one-off | 590 € |
 
 Also in the CMS (decided 18 Nov 2026):
 

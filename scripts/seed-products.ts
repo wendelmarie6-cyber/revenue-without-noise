@@ -63,7 +63,6 @@ const catalogue: Seed[] = [
       'Two weeks: your partner ideal customer profile, a shortlist of partners, and the first introductions.',
   },
   {
-    // Price is a placeholder until the owner confirms it.
     name: 'Partner GTM Bootcamp',
     slug: 'partner-gtm-bootcamp',
     kind: 'one-off',
