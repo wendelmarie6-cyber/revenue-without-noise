@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import { FormBlock } from '@/blocks/Form/Component'
+import { PageIntro } from '@/components/PageIntro'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,12 +20,11 @@ export default async function ApplyPage() {
       : null
 
   return (
-    <div className="container pt-16 pb-24">
-      <div className="prose dark:prose-invert max-w-none mb-10">
-        <h1>{copy.applyHeading}</h1>
-        {copy.applyIntro && <p>{copy.applyIntro}</p>}
+    <div className="brand-glow">
+      <div className="container pt-20 pb-24">
+        <PageIntro kicker={copy.applyKicker} heading={copy.applyHeading} intro={copy.applyIntro} />
+        {form && <FormBlock className="max-w-3xl" enableIntro={false} form={form} />}
       </div>
-      {form && <FormBlock enableIntro={false} form={form} />}
     </div>
   )
 }
@@ -32,5 +32,5 @@ export default async function ApplyPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
   const copy = await payload.findGlobal({ slug: 'events-page' })
-  return { title: copy.applyHeading }
+  return { title: copy.applyHeading.replaceAll('*', '') }
 }

@@ -25,6 +25,12 @@ export const Footer: GlobalConfig = {
         },
       },
     },
+    {
+      name: 'note',
+      type: 'text',
+      defaultValue: 'Go-to-market for B2B founders in DACH.',
+      admin: { description: 'The line after the copyright in the footer.' },
+    },
   ],
   hooks: {
     afterChange: [revalidateFooter],

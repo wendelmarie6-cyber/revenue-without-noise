@@ -60,6 +60,7 @@ if (form) {
             { label: 'Founder', value: 'founder' },
             { label: 'Partner', value: 'partner' },
             { label: 'Decision-maker', value: 'decision-maker' },
+            { label: 'Investor', value: 'investor' },
           ],
         },
         {

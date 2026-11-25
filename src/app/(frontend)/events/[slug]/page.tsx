@@ -7,13 +7,12 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import { FormBlock } from '@/blocks/Form/Component'
+import { Emphasis } from '@/components/Emphasis'
+import { BuyButton, ProductPrice } from '@/components/ProductOffer'
 import { TestModeBanner } from '@/components/TestModeBanner'
 import { formatEventDate, withEventPrefilled } from '@/utilities/events'
-import { startCheckout } from '../../shop/actions'
 
 export const dynamic = 'force-dynamic'
-
-const euros = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' })
 
 type Args = { params: Promise<{ slug: string }> }
 
@@ -49,71 +48,64 @@ export default async function EventPage({ params }: Args) {
   return (
     <>
       {product && <TestModeBanner text={shop.testModeNotice} />}
-      <div className="container pt-16 pb-24">
-        <Link href="/events" className="text-sm underline">
-          {copy.backLabel}
-        </Link>
+      <div className="brand-glow">
+        <div className="container pt-16 pb-24">
+          <Link
+            href="/events"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            ← {copy.backLabel}
+          </Link>
 
-        <div className="prose dark:prose-invert max-w-none mt-6 mb-10">
-          <p className="text-sm uppercase tracking-wide">{copy.formatLabels[event.format]}</p>
-          <h1>{event.title}</h1>
-          {event.summary && <p className="lead">{event.summary}</p>}
-          <dl>
-            <dt>{copy.labels.date}</dt>
-            <dd>{formatEventDate(event.date)}</dd>
-            <dt>{copy.labels.location}</dt>
-            <dd>{event.location}</dd>
-            {event.seats ? (
-              <>
-                <dt>{copy.labels.seats}</dt>
-                <dd>{event.seats}</dd>
-              </>
-            ) : null}
-            <dt>{copy.labels.audience}</dt>
-            <dd>{event.audience}</dd>
-            {event.host ? (
-              <>
-                <dt>{copy.labels.host}</dt>
-                <dd>{event.host}</dd>
-              </>
-            ) : null}
+          <div className="mt-10 max-w-3xl">
+            <p className="kicker mb-6">{copy.formatLabels[event.format]}</p>
+            <h1 className="text-[2.75rem] leading-[1.05] md:text-6xl">{event.title}</h1>
+            {event.summary && (
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{event.summary}</p>
+            )}
+          </div>
+
+          <dl className="mt-12 mb-14 grid max-w-4xl border-l border-t border-border sm:grid-cols-2">
+            {[
+              [copy.labels.date, formatEventDate(event.date)],
+              [copy.labels.location, event.location],
+              event.seats ? [copy.labels.seats, String(event.seats)] : null,
+              event.host ? [copy.labels.host, event.host] : null,
+              [copy.labels.audience, event.audience],
+            ]
+              .filter((row): row is [string, string] => Boolean(row && row[1]))
+              .map(([label, value]) => (
+                <div key={label} className="border-r border-b border-border p-6 last:sm:col-span-2">
+                  <dt className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="mt-2">{value}</dd>
+                </div>
+              ))}
           </dl>
-        </div>
 
-        {product && (
-          <section className="mb-12 max-w-[48rem] border border-border rounded-lg p-6 bg-card flex flex-col gap-4">
-            <h2 className="text-xl font-semibold">{product.name}</h2>
-            {copy.paidNote && <p className="text-muted-foreground">{copy.paidNote}</p>}
-            <p className="text-2xl font-bold">
-              {euros.format(product.price)}
-              {product.kind === 'membership' && (
-                <span className="text-base font-normal text-muted-foreground">
-                  {' '}
-                  {shop.perMonthLabel}
-                </span>
+          {product && (
+            <section className="mb-16 flex max-w-4xl flex-col gap-5 border border-border p-8">
+              <h2 className="text-3xl leading-tight">{product.name}</h2>
+              {copy.paidNote && <p className="text-muted-foreground">{copy.paidNote}</p>}
+              <ProductPrice product={product} labels={shop} />
+              <BuyButton product={product} labels={shop} className="sm:max-w-xs" />
+            </section>
+          )}
+
+          {form && (
+            <section className="max-w-4xl">
+              {copy.applyKicker && <p className="kicker mb-5">{copy.applyKicker}</p>}
+              <h2 className="text-4xl leading-tight">
+                <Emphasis text={copy.applyHeading} />
+              </h2>
+              {copy.applyIntro && (
+                <p className="mt-4 mb-8 text-muted-foreground">{copy.applyIntro}</p>
               )}
-            </p>
-            <form action={startCheckout}>
-              <input type="hidden" name="slug" value={product.slug ?? ''} />
-              <button
-                type="submit"
-                className="rounded-md bg-primary text-primary-foreground px-4 py-2 font-medium hover:opacity-90"
-              >
-                {product.kind === 'membership' ? shop.subscribeLabel : shop.buyLabel}
-              </button>
-            </form>
-          </section>
-        )}
-
-        {form && (
-          <section>
-            <div className="prose dark:prose-invert max-w-none mb-6">
-              <h2>{copy.applyHeading}</h2>
-              {copy.applyIntro && <p>{copy.applyIntro}</p>}
-            </div>
-            <FormBlock enableIntro={false} form={form} />
-          </section>
-        )}
+              <FormBlock className="max-w-3xl" enableIntro={false} form={form} />
+            </section>
+          )}
+        </div>
       </div>
     </>
   )

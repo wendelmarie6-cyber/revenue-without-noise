@@ -45,7 +45,7 @@ export const hero: Field = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h6'] }), // h6 = kicker line (§ 01 · …)
             FixedToolbarFeature(),
             InlineToolbarFeature(),
           ]

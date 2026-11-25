@@ -14,6 +14,8 @@ import { getClientSideURL } from '@/utilities/getURL'
 export type FormBlockType = {
   blockName?: string
   blockType?: 'formBlock'
+  /** Replaces the outer wrapper's classes (used by pages that already have a container). */
+  className?: string
   enableIntro: boolean
   form: FormType
   introContent?: DefaultTypedEditorState
@@ -25,6 +27,7 @@ export const FormBlock: React.FC<
   } & FormBlockType
 > = (props) => {
   const {
+    className,
     enableIntro,
     form: formFromProps,
     form: { id: formID, confirmationMessage, confirmationType, redirect, submitButtonLabel } = {},
@@ -114,11 +117,11 @@ export const FormBlock: React.FC<
   )
 
   return (
-    <div className="container lg:max-w-[48rem]">
+    <div className={className ?? 'container lg:max-w-[48rem]'}>
       {enableIntro && introContent && !hasSubmitted && (
         <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
       )}
-      <div className="p-4 lg:p-6 border border-border rounded-[0.8rem]">
+      <div className="p-6 lg:p-8 border border-border bg-card">
         <FormProvider {...formMethods}>
           {!isLoading && hasSubmitted && confirmationType === 'message' && (
             <RichText data={confirmationMessage} />

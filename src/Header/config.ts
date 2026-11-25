@@ -25,6 +25,24 @@ export const Header: GlobalConfig = {
         },
       },
     },
+    {
+      name: 'cta',
+      type: 'group',
+      label: 'Button on the right',
+      admin: {
+        description:
+          'The outlined button in the header, e.g. "Book a call" linking to the main website. Leave it empty to hide it.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'label', type: 'text', admin: { width: '50%' } },
+            { name: 'url', type: 'text', label: 'URL', admin: { width: '50%' } },
+          ],
+        },
+      ],
+    },
   ],
   hooks: {
     afterChange: [revalidateHeader],

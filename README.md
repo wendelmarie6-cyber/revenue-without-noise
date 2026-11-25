@@ -43,14 +43,30 @@ live at once, **without a redeploy**.
 | the application form's fields | **Forms** → *Apply to Vouched* |
 | who applied | **Form Submissions** (admins only) |
 | paid and pending orders | **Orders** (read-only status, written by the server) |
-| texts on the shop, events, apply, thank-you and cancel pages | **Globals** → *Shop*, *Events & Apply* |
+| texts on the shop, events, apply, thank-you and cancel pages (incl. the small "§ 01 · …" kicker lines) | **Globals** → *Shop*, *Events & Apply* |
 | site name and link-preview text | **Globals** → *Site settings* |
 | the home page | **Pages** → *Home* |
-| the navigation | **Globals** → *Header* |
+| the navigation and the "Book a call" button | **Globals** → *Header* |
+| footer links (to revenuewithoutnoise.com) and the footer line | **Globals** → *Footer* |
 | uploaded images | **Media** (product photos are picked from here) |
+
+**Green italic words** as on the main website: in a plain heading field wrap
+the words in `*asterisks*` (`Join Vouched, or *book a session*`); in rich text
+make them italic. A rich-text **Heading 6** is shown as a kicker line.
 
 Access rule: anyone can view published products and events; only a logged-in
 admin can create, edit or delete them.
+
+## Design
+
+The shop looks and speaks like the main website,
+[revenuewithoutnoise.com](https://revenuewithoutnoise.com): the same warm
+near-black and off-white, one green accent, Fraunces headings with green
+italic emphasis, Inter for text, "§ 01 · …" kicker lines, thin rules instead
+of shadows, and the RWN mark. Colours are tokens in
+`src/app/(frontend)/globals.css`, fonts load through `next/font` (no extra
+package). The header's "Book a call", the box below the products and the
+footer link back to the main website.
 
 ## Stack
 
@@ -136,6 +152,7 @@ while it is still pending.
    DATABASE_POOL_MAX=3 npx payload run scripts/seed-products.ts
    DATABASE_POOL_MAX=3 npx payload run scripts/seed-events.ts
    DATABASE_POOL_MAX=3 npx payload run scripts/seed-site.ts
+   DATABASE_POOL_MAX=3 npx payload run scripts/seed-design.ts
    ```
 5. In a second terminal, forward Stripe's sandbox webhooks to the app, copy
    the printed `whsec_…` into `.env` and restart the dev server:
@@ -207,6 +224,6 @@ Only the **first** confirmation of a subscription is processed (paid →
 member). Renewals (`invoice.paid`), cancellations
 (`customer.subscription.deleted`), failed charges (`invoice.payment_failed`)
 and refunds come after the course. Also later: a German locale (Payload
-localization), email notifications for applications, the final design.
+localization), email notifications for applications.
 
 Review reports live in [`docs/reviews/`](docs/reviews/).

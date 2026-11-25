@@ -1839,6 +1839,13 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The outlined button in the header, e.g. "Book a call" linking to the main website. Leave it empty to hide it.
+   */
+  cta?: {
+    label?: string | null;
+    url?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1868,6 +1875,10 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The line after the copyright in the footer.
+   */
+  note?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1877,8 +1888,32 @@ export interface Footer {
  */
 export interface Shop {
   id: number;
+  /**
+   * Small line above the heading, as on revenuewithoutnoise.com.
+   */
+  kicker?: string | null;
+  /**
+   * Wrap words in *asterisks* to show them in green italics.
+   */
   heading: string;
   intro?: string | null;
+  /**
+   * The small label on each product card.
+   */
+  kindLabels?: {
+    membership?: string | null;
+    oneOff?: string | null;
+    service?: string | null;
+  };
+  /**
+   * Points to the main website for work beyond the listed offers.
+   */
+  custom?: {
+    heading?: string | null;
+    text?: string | null;
+    linkLabel?: string | null;
+    linkUrl?: string | null;
+  };
   /**
    * Shown on every page with a buy button while Stripe runs in test mode.
    */
@@ -1903,6 +1938,10 @@ export interface Shop {
  */
 export interface EventsPage {
   id: number;
+  /**
+   * Small line above the heading. *Asterisks* in headings mean green italics.
+   */
+  kicker?: string | null;
   heading: string;
   intro?: string | null;
   emptyText: string;
@@ -1924,6 +1963,7 @@ export interface EventsPage {
    * Shown above the buy button on paid events.
    */
   paidNote?: string | null;
+  applyKicker?: string | null;
   applyHeading: string;
   applyIntro?: string | null;
   /**
@@ -1963,6 +2003,12 @@ export interface HeaderSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  cta?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1986,6 +2032,7 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  note?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1995,8 +2042,24 @@ export interface FooterSelect<T extends boolean = true> {
  * via the `definition` "shop_select".
  */
 export interface ShopSelect<T extends boolean = true> {
+  kicker?: T;
   heading?: T;
   intro?: T;
+  kindLabels?:
+    | T
+    | {
+        membership?: T;
+        oneOff?: T;
+        service?: T;
+      };
+  custom?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        linkLabel?: T;
+        linkUrl?: T;
+      };
   testModeNotice?: T;
   buyLabel?: T;
   subscribeLabel?: T;
@@ -2018,6 +2081,7 @@ export interface ShopSelect<T extends boolean = true> {
  * via the `definition` "events-page_select".
  */
 export interface EventsPageSelect<T extends boolean = true> {
+  kicker?: T;
   heading?: T;
   intro?: T;
   emptyText?: T;
@@ -2040,6 +2104,7 @@ export interface EventsPageSelect<T extends boolean = true> {
         stammtisch?: T;
       };
   paidNote?: T;
+  applyKicker?: T;
   applyHeading?: T;
   applyIntro?: T;
   applicationForm?: T;

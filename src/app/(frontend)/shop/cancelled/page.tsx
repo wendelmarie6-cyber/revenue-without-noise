@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import React from 'react'
 
+import { PageIntro } from '@/components/PageIntro'
 import { TestModeBanner } from '@/components/TestModeBanner'
 
 export const dynamic = 'force-dynamic'
@@ -16,14 +17,15 @@ export default async function CancelledPage() {
   return (
     <>
       <TestModeBanner text={shop.testModeNotice} />
-      <div className="container pt-16 pb-24">
-        <div className="prose dark:prose-invert max-w-2xl">
-          <h1>{shop.cancelledHeading}</h1>
-          {shop.cancelledText && <p>{shop.cancelledText}</p>}
-          <p>
-            <Link href="/shop">{shop.backLabel}</Link>
-          </p>
-        </div>
+      <div className="container pt-20 pb-24">
+        <PageIntro heading={shop.cancelledHeading} intro={shop.cancelledText}>
+          <Link
+            href="/shop"
+            className="mt-10 inline-block border border-input px-5 py-3 text-sm transition-colors hover:border-primary hover:text-primary"
+          >
+            ← {shop.backLabel}
+          </Link>
+        </PageIntro>
       </div>
     </>
   )

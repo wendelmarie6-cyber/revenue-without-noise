@@ -14,6 +14,12 @@ export const EventsPage: GlobalConfig = {
     update: authenticated,
   },
   fields: [
+    {
+      name: 'kicker',
+      type: 'text',
+      defaultValue: '§ 02 · Vouched — community & events',
+      admin: { description: 'Small line above the heading. *Asterisks* in headings mean green italics.' },
+    },
     { name: 'heading', type: 'text', required: true, defaultValue: 'Vouched Tables' },
     {
       name: 'intro',
@@ -51,6 +57,7 @@ export const EventsPage: GlobalConfig = {
         'Founders book their seat here: they pay for preparation and introductions, never for a seat in front of decision-makers.',
       admin: { description: 'Shown above the buy button on paid events.' },
     },
+    { name: 'applyKicker', type: 'text', defaultValue: '§ 03 · Apply' },
     { name: 'applyHeading', type: 'text', required: true, defaultValue: 'Apply to Vouched' },
     {
       name: 'applyIntro',

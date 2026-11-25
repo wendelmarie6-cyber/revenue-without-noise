@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import React from 'react'
 
+import { Emphasis } from '@/components/Emphasis'
 import { TestModeBanner } from '@/components/TestModeBanner'
 import { RefreshWhilePending } from './RefreshWhilePending'
 
@@ -41,16 +42,26 @@ export default async function ThankYouPage({ searchParams }: Props) {
   return (
     <>
       <TestModeBanner text={shop.testModeNotice} />
-      <div className="container pt-16 pb-24">
-        <div className="prose dark:prose-invert max-w-2xl">
-          <h1 data-order-status={order?.status ?? 'unknown'}>{heading}</h1>
-          {order && <p className="font-medium">{order.productName}</p>}
-          {text && <p>{text}</p>}
-          <p>
-            <Link href="/shop">{shop.backLabel}</Link>
-          </p>
+      <div className="brand-glow">
+      <div className="container pt-20 pb-24">
+        <div className="max-w-2xl">
+          {order && <p className="kicker mb-6">{order.productName}</p>}
+          <h1
+            data-order-status={order?.status ?? 'unknown'}
+            className="text-[2.75rem] leading-[1.05] md:text-6xl"
+          >
+            <Emphasis text={heading} />
+          </h1>
+          {text && <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{text}</p>}
+          <Link
+            href="/shop"
+            className="mt-10 inline-block border border-input px-5 py-3 text-sm transition-colors hover:border-primary hover:text-primary"
+          >
+            ← {shop.backLabel}
+          </Link>
         </div>
         {order?.status === 'pending' && <RefreshWhilePending />}
+      </div>
       </div>
     </>
   )
