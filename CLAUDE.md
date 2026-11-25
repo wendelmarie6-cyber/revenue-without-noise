@@ -35,9 +35,10 @@ Also in the CMS (decided 18 Nov 2026):
 
 - **Partner GTM Bootcamp** (one day, 20 founders: partner ICP, top-10 partner
   shortlist, 90-day plan, peer check) as a seventh product, one-off.
-- **Events** collection for **Vouched Tables** (one per function; the first is
-  the Finance Table for Mittelstand CFOs, finance partners and at most two
-  founders as guests). Decision-makers and partners never pay; they apply.
+- **Events** collection for Vouched: a recurring **Stammtisch** for the whole
+  community and niche **Tables** for one group of decision-makers (decided
+  25 Nov 2026: no Finance/Mittelstand table, no Mittelstand anywhere).
+  Decision-makers, partners and investors never pay; they apply.
 - **Application form** (Payload form builder) for Vouched Basecamp and the
   Tables. Founders pay for preparation and intros, never for a seat in front
   of decision-makers.

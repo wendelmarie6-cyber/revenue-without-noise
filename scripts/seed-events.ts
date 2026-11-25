@@ -96,16 +96,29 @@ if (!bootcamp) throw new Error('Run scripts/seed-products.ts first: the bootcamp
 
 const events = [
   {
-    title: 'Finance Table – Munich',
-    slug: 'finance-table-munich',
+    title: 'Vouched Stammtisch – Munich',
+    slug: 'vouched-stammtisch-munich',
+    format: 'stammtisch' as const,
+    date: '2027-01-14T18:00:00.000Z', // 19:00 in Munich
+    location: 'Munich, venue shared with confirmed guests',
+    seats: 30,
+    summary:
+      'The monthly evening where the Vouched community meets: founders, decision-makers, partners and investors. No agenda, no pitches, new ideas.',
+    audience:
+      'Vouched members and invited guests: founders, decision-makers, partners, investors and people from the industry.',
+    host: 'Revenue without Noise',
+  },
+  {
+    title: 'Vouched Table – Munich',
+    slug: 'vouched-table-munich',
     format: 'table' as const,
-    date: '2027-01-21T17:30:00.000Z', // 18:30 in Munich
+    date: '2027-01-28T17:30:00.000Z', // 18:30 in Munich
     location: 'Munich, venue shared with confirmed guests',
     seats: 12,
     summary:
-      'An evening table for finance leaders of Mittelstand companies, the finance partners who implement, and at most two founders as guests.',
+      'A small evening table for one group of decision-makers and the founders, partners and investors who want to meet them.',
     audience:
-      'CFOs and heads of finance from Mittelstand companies, finance implementation partners, and up to two founders as guests. Decision-makers and partners never pay; they apply.',
+      'Decision-makers from one function, invited partners and investors, and a few founders as guests. Decision-makers, partners and investors never pay; they apply.',
     host: 'Revenue without Noise',
   },
   {
