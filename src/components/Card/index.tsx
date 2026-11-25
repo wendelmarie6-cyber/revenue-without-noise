@@ -35,6 +35,7 @@ export const Card: React.FC<{
         'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
         className,
       )}
+      // eslint-disable-next-line react-hooks/refs -- the template's clickable-card hook hands out refs for JSX (template code)
       ref={card.ref}
     >
       <div className="relative w-full ">
@@ -67,6 +68,7 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
+              {/* eslint-disable-next-line react-hooks/refs -- template's clickable-card hook hands out refs for JSX */}
               <Link className="not-prose" href={href} ref={link.ref}>
                 {titleToUse}
               </Link>

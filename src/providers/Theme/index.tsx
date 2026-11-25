@@ -48,6 +48,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     document.documentElement.setAttribute('data-theme', themeToSet)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs browser-only state after mount (template code)
     setThemeState(themeToSet)
   }, [])
 

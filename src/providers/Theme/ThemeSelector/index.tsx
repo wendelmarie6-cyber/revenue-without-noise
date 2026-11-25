@@ -30,6 +30,7 @@ export const ThemeSelector: React.FC = () => {
 
   React.useEffect(() => {
     const preference = window.localStorage.getItem(themeLocalStorageKey)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs browser-only state after mount (template code)
     setValue(preference ?? 'auto')
   }, [])
 

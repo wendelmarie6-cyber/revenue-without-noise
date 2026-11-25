@@ -26,6 +26,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, siteName }) =>
   }, [pathname])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs browser-only state after mount (template code)
     if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
