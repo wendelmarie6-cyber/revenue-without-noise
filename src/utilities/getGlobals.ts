@@ -18,9 +18,11 @@ async function getGlobal<T extends Global>(slug: T, depth = 0): Promise<DataFrom
 }
 
 /**
- * Returns a unstable_cache function mapped with the cache tag for the slug
+ * Returns a unstable_cache function mapped with the cache tag for the slug.
+ * The depth is part of the key: the same global read at depth 0 and depth 1
+ * returns different shapes and must not share one cache entry.
  */
 export const getCachedGlobal = <T extends Global>(slug: T, depth = 0) =>
-  unstable_cache(async () => getGlobal<T>(slug, depth), [slug], {
+  unstable_cache(async () => getGlobal<T>(slug, depth), [slug, `depth-${depth}`], {
     tags: [`global_${slug}`],
   })
