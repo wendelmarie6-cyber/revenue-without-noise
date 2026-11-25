@@ -1,4 +1,5 @@
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
@@ -26,6 +27,14 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 }
 
 export const plugins: Plugin[] = [
+  // Vercel's file system is read-only and wiped between deploys, so uploaded
+  // media (product photos) go to Vercel Blob in production. Without the token
+  // (local development) Payload keeps writing to the local disk as before.
+  vercelBlobStorage({
+    enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    collections: { media: true },
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  }),
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
