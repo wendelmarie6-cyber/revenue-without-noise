@@ -103,7 +103,7 @@ const events = [
     location: 'Munich, venue shared with confirmed guests',
     seats: 30,
     summary:
-      'The monthly evening where the Vouched community meets: founders, decision-makers, partners and investors. No agenda, no pitches, new ideas.',
+      'The evening every six weeks where the Vouched community meets: founders, decision-makers, partners and investors. No agenda, no pitches, new ideas.',
     audience:
       'Vouched members and invited guests: founders, decision-makers, partners, investors and people from the industry.',
     host: 'Revenue without Noise',
