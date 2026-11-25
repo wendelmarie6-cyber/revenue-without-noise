@@ -1,3 +1,4 @@
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -62,10 +63,9 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { pageNumber } = await paramsPromise
+export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    title: (await getCachedGlobal('site')()).siteName,
   }
 }
 

@@ -12,9 +12,11 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { pageTitle } from '@/utilities/generateMeta'
 
-const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+const generateTitle: GenerateTitle<Post | Page> = async ({ doc, req }) => {
+  const site = await req.payload.findGlobal({ slug: 'site', req })
+  return pageTitle(site.siteName, doc?.title)
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {

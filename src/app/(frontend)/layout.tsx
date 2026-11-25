@@ -15,6 +15,7 @@ import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
@@ -43,11 +44,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   )
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@payloadcms',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getCachedGlobal('site')()
+  return {
+    metadataBase: new URL(getServerSideURL()),
+    title: site.siteName,
+    description: site.description,
+    openGraph: mergeOpenGraph({}, site),
+    twitter: { card: 'summary_large_image' },
+  }
 }

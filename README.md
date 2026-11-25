@@ -4,10 +4,14 @@
 > test cards (e.g. `4242 4242 4242 4242`, any future date, any CVC). Never a
 > real card.
 
+**Live:** https://revenue-without-noise.vercel.app (deployed from `main` on
+Vercel; the real domain stays on the old site until Stripe goes live).
+
 The new website of **Revenue without Noise**, a go-to-market practice in Munich
 ("Mehr Umsatz. Weniger Lärm."). **Vouched** is its community: small,
 invitation-only tables in Munich where founders, the partners who implement,
-and the decision-makers who buy sit together around AI. Never a sales event.
+the decision-makers who buy and investors sit together around AI. Never a
+sales event. The practice works with B2B AI founders before product-market fit.
 
 Built for Turing College Sprint 4 ("Ship your own online shop") as a
 **membership site plus bookable paid services**:
@@ -34,6 +38,7 @@ Built for Turing College Sprint 4 ("Ship your own online shop") as a
 
 | Path | What it shows |
 |---|---|
+| `/` | Home page, built from blocks in the `pages` collection |
 | `/shop` | All published products with price and buy button |
 | `/shop/thank-you` | Order status as confirmed by the webhook (pending → paid) |
 | `/events` | Upcoming published events, sorted by date |
@@ -51,6 +56,8 @@ Built for Turing College Sprint 4 ("Ship your own online shop") as a
 | `forms`, `form-submissions` | Form builder: the application form and what people send |
 | `shop` global | All copy on the shop pages, incl. the test-mode notice |
 | `events-page` global | All copy on the events and apply pages, and which form they show |
+| `site` global | Site name and description (header, footer, page titles, link previews) |
+| `pages` | The home page (and any further page), built from CMS blocks |
 | `header` global | Navigation links (Shop, Events, Apply) |
 
 ## Access rules
@@ -82,12 +89,13 @@ refreshes while it is still pending.
 
 ## Local setup
 
-1. Node 20+ and npm. Install: `npm install`
+1. Node 22.23.4+ (or 24.22.1+, see `engines` in `package.json`) and npm. Install: `npm install`
 2. Copy `.env.example` to `.env` and fill in:
    - `DATABASE_URL` (Postgres; Supabase session pooler works)
    - `PAYLOAD_SECRET`, `CRON_SECRET`, `PREVIEW_SECRET` (any long random strings)
    - `NEXT_PUBLIC_SERVER_URL=http://localhost:3001`
-   - `STRIPE_SECRET_KEY` (`sk_test_…` only) and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (`pk_test_…`)
+   - `STRIPE_SECRET_KEY` (`sk_test_…` only). The publishable key is not needed:
+     the site uses Stripe's hosted Checkout page, so no Stripe code runs in the browser.
    - `STRIPE_WEBHOOK_SECRET` (`whsec_…`, printed by `stripe listen`, see below)
    - Optional `DATABASE_POOL_MAX` (default 5). Supabase's session pooler allows
      15 clients in total, so keep it small (e.g. 3) for scripts.
@@ -99,11 +107,13 @@ refreshes while it is still pending.
    npm run dev -- -p 3001
    ```
    Open http://localhost:3001/admin and create the first admin user.
-4. Seed the catalogue, then the events, the application form and the header
-   links (both scripts are idempotent and never overwrite admin edits):
+4. Seed the content (all three scripts are idempotent and never overwrite
+   admin edits): the catalogue; the events, the application form and the
+   header links; the site settings and the home page.
    ```bash
    DATABASE_POOL_MAX=3 npx payload run scripts/seed-products.ts
    DATABASE_POOL_MAX=3 npx payload run scripts/seed-events.ts
+   DATABASE_POOL_MAX=3 npx payload run scripts/seed-site.ts
    ```
 
 ## Testing payments locally
@@ -147,11 +157,49 @@ member). These webhook cases come after the course:
 - refunds
 
 Also not yet: a German locale (planned via Payload localization), email
-notifications for applications, and the final design.
+notifications for applications, the final design and logo, image uploads on
+Vercel (the `media` collection needs a storage adapter such as Vercel Blob
+first), and database migrations (see Deployment).
 
 ## Deployment
 
-The shop is reviewed at its Vercel address, **not** on revenuewithoutnoise.com,
-for as long as Stripe is in test mode. Set the same environment variables in
-Vercel and register `https://<vercel-url>/api/stripe/webhook` as a webhook
-endpoint for `checkout.session.completed` in the Stripe test dashboard.
+Live at **https://revenue-without-noise.vercel.app**, built by Vercel from
+`main`. It stays off revenuewithoutnoise.com for as long as Stripe is in test
+mode; moving the domain is a settings change (Vercel domain, DNS at the
+registrar, `NEXT_PUBLIC_SERVER_URL`, the Stripe webhook URL), not a code change.
+
+Environment variables in Vercel (Production): `DATABASE_URL`,
+`DATABASE_POOL_MAX=2`, `PAYLOAD_SECRET`, `CRON_SECRET`, `PREVIEW_SECRET`,
+`NEXT_PUBLIC_SERVER_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+
+- **Database on Vercel: use Supabase's *transaction* pooler (port 6543).**
+  Every serverless instance keeps its own connections; the session pooler
+  (port 5432) allows 15 in total and runs out under light load. Locally the
+  session pooler is fine.
+- **Webhook:** in the Stripe test dashboard (Workbench → Webhooks) an
+  endpoint `https://revenue-without-noise.vercel.app/api/stripe/webhook` for
+  `checkout.session.completed`, snapshot payload. Its signing secret is
+  `STRIPE_WEBHOOK_SECRET` in Vercel (different from the local `stripe listen`
+  one).
+- **Schema:** there are no migrations yet. Payload creates new tables when the
+  dev server (or a `payload run` script) starts against the database, so a
+  schema change is pushed locally before the deploy that needs it. Separate
+  development and production databases with migrations come after the course.
+
+## Review walkthrough
+
+1. **CMS change is live at once:** in `/admin` change a product's price or
+   description, publish, reload `/shop`: the new value shows, no redeploy.
+2. **Paid only by webhook:** buy *Roundtable seat* with `4242 4242 4242 4242`.
+   The thank-you page says "Confirming…" until Stripe's webhook arrives, then
+   "confirmed"; in `/admin` → Orders the order is *Paid*.
+3. **A declined card marks nothing:** try `4000 0000 0000 0002`. Stripe
+   declines it, no webhook fires, the order stays *Pending*.
+4. **Forged webhooks are rejected:** a POST to `/api/stripe/webhook` without
+   or with a wrong `stripe-signature` header gets `400`.
+
+Review reports live in [`docs/reviews/`](docs/reviews/).
+
+Optional tasks done: a second collection (**Events**), an **Orders**
+collection written only by the server and the webhook, and a **confirmation
+page** (`/shop/thank-you`) that shows the confirmed state.

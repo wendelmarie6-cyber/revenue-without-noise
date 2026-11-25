@@ -12,6 +12,7 @@ import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
 import { Events } from './collections/Events'
 import { EventsPage } from './EventsPage/config'
+import { SiteSettings } from './SiteSettings/config'
 import { Shop } from './Shop/config'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
@@ -29,9 +30,8 @@ export default buildConfig({
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      // The template's dashboard block is gone on purpose: its "seed" button
+      // deletes forms, form submissions, pages and the header menu.
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -71,7 +71,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Products, Orders, Events, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, Shop, EventsPage],
+  globals: [SiteSettings, Header, Footer, Shop, EventsPage],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

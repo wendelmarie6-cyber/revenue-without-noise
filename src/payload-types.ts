@@ -116,12 +116,14 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    site: Site;
     header: Header;
     footer: Footer;
     shop: Shop;
     'events-page': EventsPage;
   };
   globalsSelect: {
+    site: SiteSelect<false> | SiteSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     shop: ShopSelect<false> | ShopSelect<true>;
@@ -1799,6 +1801,20 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site".
+ */
+export interface Site {
+  id: number;
+  siteName: string;
+  /**
+   * Shown in search results and link previews (LinkedIn, Slack, …).
+   */
+  description: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
@@ -1914,6 +1930,17 @@ export interface EventsPage {
   applicationForm?: (number | null) | Form;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site_select".
+ */
+export interface SiteSelect<T extends boolean = true> {
+  siteName?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
