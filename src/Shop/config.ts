@@ -43,5 +43,11 @@ export const Shop: GlobalConfig = {
     },
     { name: 'unknownHeading', type: 'text', required: true, defaultValue: 'We could not find this order' },
     { name: 'backLabel', type: 'text', required: true, defaultValue: 'Back to the shop' },
+    { name: 'cancelledHeading', type: 'text', required: true, defaultValue: 'Checkout cancelled' },
+    {
+      name: 'cancelledText',
+      type: 'textarea',
+      defaultValue: 'Nothing was charged and nothing was booked. You can start again whenever you like.',
+    },
   ],
 }

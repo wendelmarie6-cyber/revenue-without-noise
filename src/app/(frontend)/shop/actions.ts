@@ -59,7 +59,7 @@ export async function startCheckout(formData: FormData): Promise<void> {
     client_reference_id: String(order.id),
     metadata: { orderId: String(order.id) },
     success_url: `${base}/shop/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${base}/shop`,
+    cancel_url: `${base}/shop/cancelled`,
   })
 
   await payload.update({

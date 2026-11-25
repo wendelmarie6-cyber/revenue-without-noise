@@ -1892,6 +1892,8 @@ export interface Shop {
   pendingText?: string | null;
   unknownHeading: string;
   backLabel: string;
+  cancelledHeading: string;
+  cancelledText?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2005,6 +2007,8 @@ export interface ShopSelect<T extends boolean = true> {
   pendingText?: T;
   unknownHeading?: T;
   backLabel?: T;
+  cancelledHeading?: T;
+  cancelledText?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
