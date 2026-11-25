@@ -1,0 +1,36 @@
+# Daily health check of the live shop (optional task "A scheduled health check").
+# Runs every morning and on demand. If anything fails, the run turns red and
+# GitHub emails the repository owner. Needs no secrets: it only reads public pages.
+name: Live shop health check
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 06:00 UTC = 07:00 in Munich (winter)
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://revenue-without-noise.vercel.app
+    steps:
+      - name: Pages answer with 200
+        run: |
+          for page in / /shop /events /apply /shop/thank-you /shop/cancelled; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$BASE_URL$page")
+            echo "$page -> $code"
+            test "$code" = "200"
+          done
+
+      - name: Products load from the CMS
+        run: |
+          count=$(curl -s --max-time 60 "$BASE_URL/api/products?limit=1" | jq '.totalDocs')
+          echo "published products: $count"
+          test "$count" -gt 0
+
+      - name: Unsigned webhook is rejected
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+            -d '{"type":"checkout.session.completed"}' "$BASE_URL/api/stripe/webhook")
+          echo "unsigned webhook -> $code"
+          test "$code" = "400"
