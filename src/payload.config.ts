@@ -4,10 +4,8 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
 import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
 import { Events } from './collections/Events'
@@ -27,11 +25,7 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
-      // The template's dashboard block is gone on purpose: its "seed" button
-      // deletes forms, form submissions, pages and the header menu.
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -60,7 +54,6 @@ export default buildConfig({
       ],
     },
   },
-  // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
     pool: {
@@ -69,7 +62,7 @@ export default buildConfig({
       max: Number(process.env.DATABASE_POOL_MAX ?? 5),
     },
   }),
-  collections: [Pages, Posts, Products, Orders, Events, Media, Categories, Users],
+  collections: [Pages, Products, Orders, Events, Media, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [SiteSettings, Header, Footer, Shop, EventsPage],
   plugins,

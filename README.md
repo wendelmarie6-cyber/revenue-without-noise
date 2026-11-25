@@ -76,6 +76,10 @@ footer link back to the main website.
 - Vercel hosting; media on Vercel Blob (`@payloadcms/storage-vercel-blob`)
 - Payload form builder for applications; Tailwind CSS; Vitest; ESLint
 
+Started from Payload's website template. The parts this shop does not use were
+removed: the blog (Posts, Categories), search, redirects, the demo seed
+endpoint, the Docker files and the template's end-to-end tests.
+
 Agent skills were installed before building: the Payload skills
 (`npx skills add payloadcms/skills`, see `.claude/skills/` and
 `skills-lock.json`) and the Stripe plugin
@@ -133,7 +137,7 @@ while it is still pending.
    | Variable | Where the value comes from |
    |---|---|
    | `DATABASE_URL` | Supabase → your project → **Connect** → Session pooler (port 5432) URI, with your database password |
-   | `DATABASE_POOL_MAX` | optional; `3` locally (Supabase's session pooler allows 15 clients in total) |
+   | `DATABASE_POOL_MAX` | `2` (Supabase's session pooler allows 15 clients in total) |
    | `PAYLOAD_SECRET`, `CRON_SECRET`, `PREVIEW_SECRET` | any long random strings, e.g. `openssl rand -hex 32` |
    | `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3001` |
    | `STRIPE_SECRET_KEY` | Stripe Dashboard (sandbox) → Developers → API keys → secret key `sk_test_…` |
@@ -149,11 +153,14 @@ while it is still pending.
    ```
 4. Seed the content (idempotent, never overwrites admin edits):
    ```bash
-   DATABASE_POOL_MAX=3 npx payload run scripts/seed-products.ts
-   DATABASE_POOL_MAX=3 npx payload run scripts/seed-events.ts
-   DATABASE_POOL_MAX=3 npx payload run scripts/seed-site.ts
-   DATABASE_POOL_MAX=3 npx payload run scripts/seed-design.ts
+   DATABASE_POOL_MAX=2 npx payload run scripts/seed-products.ts
+   DATABASE_POOL_MAX=2 npx payload run scripts/seed-events.ts
+   DATABASE_POOL_MAX=2 npx payload run scripts/seed-site.ts
+   DATABASE_POOL_MAX=2 npx payload run scripts/seed-design.ts
    ```
+   Product photos (`scripts/product-photos/`) are uploaded with
+   `DATABASE_POOL_MAX=2 npx payload run scripts/upload-product-photos.ts`; it
+   needs `BLOB_READ_WRITE_TOKEN`, because the photos must reach the live site.
 5. In a second terminal, forward Stripe's sandbox webhooks to the app, copy
    the printed `whsec_…` into `.env` and restart the dev server:
    ```bash
@@ -163,10 +170,10 @@ while it is still pending.
 ### Checks
 
 ```bash
-npx tsc --noEmit                                             # types
-npx eslint src scripts                                        # lint
-npx vitest run --config ./vitest.config.mts                   # unit + API tests
-DATABASE_POOL_MAX=3 npx payload run scripts/check-webhook.ts  # webhook end to end (dev server running)
+npm run typecheck                                             # types
+npm run lint                                                  # lint
+npm test                                                      # unit + API tests (Vitest)
+DATABASE_POOL_MAX=2 npx payload run scripts/check-webhook.ts  # webhook end to end (dev server running)
 ```
 
 `check-webhook.ts` creates a pending order and posts (1) an unsigned "paid"
@@ -217,6 +224,9 @@ custom domain, instant-rollback rehearsal, migration flow, deployment pipeline.
    declines it on its page, no webhook fires, the order stays *Pending*.
 4. **Forged webhooks are rejected:** a POST to `/api/stripe/webhook` without
    or with a wrong `stripe-signature` header gets `400`.
+
+Screenshots and the webhook log of a declined and a successful test purchase:
+[`docs/evidence/`](docs/evidence/README.md).
 
 ## Out of scope for the course
 
