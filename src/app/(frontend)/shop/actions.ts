@@ -3,9 +3,10 @@
 import configPromise from '@payload-config'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
+import type Stripe from 'stripe'
 
 import { stripe } from '@/stripe/server'
-import { toCents } from '@/stripe/fulfilment'
+import { CURRENCY, toCents } from '@/stripe/fulfilment'
 import { getServerSideURL } from '@/utilities/getURL'
 
 /**
@@ -43,24 +44,35 @@ export async function startCheckout(formData: FormData): Promise<void> {
   })
 
   const base = getServerSideURL()
-  const session = await stripe().checkout.sessions.create({
-    mode: membership ? 'subscription' : 'payment',
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: 'eur',
-          unit_amount: amount,
-          product_data: { name: product.name },
-          ...(membership ? { recurring: { interval: 'month' as const } } : {}),
+  let session: Stripe.Checkout.Session
+  let checkoutUrl: string
+  try {
+    session = await stripe().checkout.sessions.create({
+      mode: membership ? 'subscription' : 'payment',
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: CURRENCY,
+            unit_amount: amount,
+            product_data: { name: product.name },
+            ...(membership ? { recurring: { interval: 'month' as const } } : {}),
+          },
         },
-      },
-    ],
-    client_reference_id: String(order.id),
-    metadata: { orderId: String(order.id) },
-    success_url: `${base}/shop/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${base}/shop/cancelled`,
-  })
+      ],
+      client_reference_id: String(order.id),
+      metadata: { orderId: String(order.id) },
+      success_url: `${base}/shop/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${base}/shop/cancelled`,
+    })
+    if (!session.url) throw new Error('Stripe did not return a checkout page.')
+    checkoutUrl = session.url
+  } catch (error) {
+    // No checkout page means nothing can ever pay this order: remove it, so
+    // the Orders list only shows orders a customer could actually complete.
+    await payload.delete({ collection: 'orders', id: order.id })
+    throw error
+  }
 
   await payload.update({
     collection: 'orders',
@@ -68,6 +80,5 @@ export async function startCheckout(formData: FormData): Promise<void> {
     data: { stripeSessionId: session.id },
   })
 
-  if (!session.url) throw new Error('Stripe did not return a checkout page.')
-  redirect(session.url)
+  redirect(checkoutUrl)
 }

@@ -101,7 +101,8 @@ Agent skills were installed before building: the Payload skills
 ## The rule: paid only through a verified webhook
 
 An order counts as paid **only** when Stripe's `checkout.session.completed`
-event reaches `/api/stripe/webhook` and its signature verifies against
+event (or, for a delayed payment method, `checkout.session.async_payment_succeeded`)
+reaches `/api/stripe/webhook` and its signature verifies against
 `STRIPE_WEBHOOK_SECRET`. Reaching the thank-you page proves nothing: anyone can
 open that URL. The thank-you page only *reads* the order status and refreshes
 while it is still pending.
@@ -114,7 +115,8 @@ while it is still pending.
    signature on the raw body; anything unsigned or forged gets `400`.
 3. **The rule** (`src/stripe/fulfilment.ts`, tested in
    `tests/int/fulfilment.int.spec.ts`): only a completed, paid session marks
-   its order `paid`; a replay of the same event changes nothing.
+   its order `paid`, and only if amount and currency match what the checkout
+   asked for; a replay of the same event changes nothing.
 4. **A declined card** never completes the session, so no webhook arrives and
    the order stays `pending`. Leaving Checkout leads to `/shop/cancelled`.
 
@@ -193,8 +195,9 @@ https://revenue-without-noise.vercel.app. Environment variables in Vercel:
   serverless instance keeps its own connections; the session pooler allows 15
   in total and runs out under light load.
 - **Webhook:** Stripe sandbox → Workbench → Webhooks → destination
-  `https://revenue-without-noise.vercel.app/api/stripe/webhook`, event
-  `checkout.session.completed`, snapshot payload. Its signing secret is
+  `https://revenue-without-noise.vercel.app/api/stripe/webhook`, events
+  `checkout.session.completed` and `checkout.session.async_payment_succeeded`
+  (a delayed payment method that succeeds later), snapshot payload. Its signing secret is
   `STRIPE_WEBHOOK_SECRET` in Vercel (different from the local one).
 - **Media:** a Vercel Blob store connected to the project provides
   `BLOB_READ_WRITE_TOKEN`; uploaded product photos are stored there.

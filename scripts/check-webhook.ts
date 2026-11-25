@@ -10,6 +10,8 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import Stripe from 'stripe'
 
+import { CURRENCY, toCents } from '../src/stripe/fulfilment'
+
 const base = process.env.CHECK_URL ?? 'http://localhost:3001'
 const secret = process.env.STRIPE_WEBHOOK_SECRET
 if (!secret) throw new Error('STRIPE_WEBHOOK_SECRET is not set')
@@ -25,7 +27,7 @@ const order = await payload.create({
     product: product.id,
     productName: product.name,
     kind: product.kind,
-    amount: Math.round(product.price * 100),
+    amount: toCents(product.price),
     status: 'pending',
     stripeSessionId: sessionId,
   },
@@ -40,8 +42,8 @@ const body = JSON.stringify({
       id: sessionId,
       object: 'checkout.session',
       payment_status: 'paid',
-      amount_total: Math.round(product.price * 100),
-      currency: 'eur',
+      amount_total: toCents(product.price),
+      currency: CURRENCY,
       customer_details: { email: 'buyer@example.com' },
       subscription: null,
       metadata: { orderId: String(order.id) },

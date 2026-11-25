@@ -18,8 +18,9 @@ product or price objects to copy. The CMS stays the single source of prices.
 
 ## 3. Register a live webhook endpoint
 - Dashboard (live mode) → Developers → Webhooks → Add destination.
-- URL: `https://<production-domain>/api/stripe/webhook`, event
-  `checkout.session.completed`, snapshot payload.
+- URL: `https://<production-domain>/api/stripe/webhook`, events
+  `checkout.session.completed` and `checkout.session.async_payment_succeeded`,
+  snapshot payload.
 - Copy its **new** signing secret. The live endpoint has a different secret from
   the test endpoint; forgetting to swap it is the most common go-live failure
   (payments succeed but no order is ever marked paid).

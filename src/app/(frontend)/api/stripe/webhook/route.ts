@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type Stripe from 'stripe'
 
-import { paidUpdate } from '@/stripe/fulfilment'
+import { canMarkPaid, paidUpdate } from '@/stripe/fulfilment'
 import { stripe } from '@/stripe/server'
 
 // The only door through which an order becomes paid. Reaching the
@@ -25,14 +25,16 @@ export async function POST(req: Request): Promise<Response> {
     return new Response('Invalid signature', { status: 400 })
   }
 
-  // For the course only the first confirmation is handled. Renewals,
+  // For the course only the first confirmation is handled: a completed
+  // checkout, or a delayed payment that succeeded later. Renewals,
   // cancellations and failed charges are separate events, acknowledged here
   // so Stripe stops retrying them.
-  if (event.type !== 'checkout.session.completed') {
+  if (!canMarkPaid(event.type)) {
     return Response.json({ received: true, handled: false })
   }
 
-  const session = event.data.object
+  // Both paying events carry the Checkout Session.
+  const session = event.data.object as Stripe.Checkout.Session
   const payload = await getPayload({ config: configPromise })
   const orderId = session.metadata?.orderId
   const order = orderId

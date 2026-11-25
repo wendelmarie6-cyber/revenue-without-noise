@@ -11,5 +11,5 @@ case "$KEY" in
   *) echo "STRIPE_SECRET_KEY in .env is missing or not a test key" >&2; exit 1 ;;
 esac
 exec npx stripe listen --api-key "$KEY" \
-  --events checkout.session.completed \
+  --events checkout.session.completed,checkout.session.async_payment_succeeded \
   --forward-to "localhost:$PORT/api/stripe/webhook"

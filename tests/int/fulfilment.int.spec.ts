@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { paidUpdate, toCents, type SessionFacts } from '@/stripe/fulfilment'
+import { canMarkPaid, paidUpdate, toCents, type SessionFacts } from '@/stripe/fulfilment'
 
 const session: SessionFacts = {
   id: 'cs_test_1',
@@ -10,7 +10,7 @@ const session: SessionFacts = {
   customer_details: { email: 'buyer@example.com' },
   subscription: null,
 }
-const pending = { status: 'pending' as const, stripeSessionId: 'cs_test_1' }
+const pending = { status: 'pending' as const, stripeSessionId: 'cs_test_1', amount: 19000 }
 const now = new Date('2026-11-12T12:00:00Z')
 
 describe('paidUpdate', () => {
@@ -42,7 +42,7 @@ describe('paidUpdate', () => {
   })
 
   it('refuses an order that never started a checkout', () => {
-    expect(paidUpdate(session, { status: 'pending', stripeSessionId: null }, now).ok).toBe(false)
+    expect(paidUpdate(session, { ...pending, stripeSessionId: null }, now).ok).toBe(false)
   })
 
   it('does not count a completed but unpaid session', () => {
@@ -52,9 +52,32 @@ describe('paidUpdate', () => {
     })
   })
 
+  it('refuses a payment that does not match the expected amount', () => {
+    expect(paidUpdate({ ...session, amount_total: 100 }, pending, now)).toEqual({
+      ok: false,
+      reason: 'amount 100 eur does not match the expected 19000 eur',
+    })
+  })
+
+  it('refuses a payment in another currency', () => {
+    expect(paidUpdate({ ...session, currency: 'usd' }, pending, now).ok).toBe(false)
+  })
+
   it('keeps the subscription id of a membership', () => {
     const result = paidUpdate({ ...session, subscription: { id: 'sub_test_1' } }, pending, now)
     expect(result.ok && result.data.stripeSubscriptionId).toBe('sub_test_1')
+  })
+})
+
+describe('canMarkPaid', () => {
+  it('accepts a completed checkout and a delayed payment that succeeded later', () => {
+    expect(canMarkPaid('checkout.session.completed')).toBe(true)
+    expect(canMarkPaid('checkout.session.async_payment_succeeded')).toBe(true)
+  })
+
+  it('ignores every other event', () => {
+    expect(canMarkPaid('checkout.session.async_payment_failed')).toBe(false)
+    expect(canMarkPaid('invoice.paid')).toBe(false)
   })
 })
 

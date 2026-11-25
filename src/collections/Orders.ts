@@ -7,6 +7,8 @@ import { authenticated } from '../access/authenticated'
 // is the only path allowed to.
 const nobody: FieldAccess = () => false
 const writtenByStripeOnly = { create: nobody, update: nobody }
+// What was bought and for how much is fixed at checkout; nobody edits it later.
+const fixedAtCheckout = { update: nobody }
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -36,17 +38,25 @@ export const Orders: CollectionConfig = {
       access: writtenByStripeOnly,
       admin: { position: 'sidebar' },
     },
-    { name: 'product', type: 'relationship', relationTo: 'products', required: true },
+    {
+      name: 'product',
+      type: 'relationship',
+      relationTo: 'products',
+      required: true,
+      access: fixedAtCheckout,
+    },
     {
       name: 'productName',
       type: 'text',
       required: true,
+      access: fixedAtCheckout,
       admin: { description: 'The name at the time of purchase.' },
     },
     {
       name: 'kind',
       type: 'select',
       required: true,
+      access: fixedAtCheckout,
       options: [
         { label: 'Membership', value: 'membership' },
         { label: 'One-off seat', value: 'one-off' },
@@ -57,6 +67,7 @@ export const Orders: CollectionConfig = {
       name: 'amount',
       type: 'number',
       required: true,
+      access: fixedAtCheckout,
       admin: { description: 'Expected amount in cents, taken from the product at checkout.' },
     },
     { name: 'stripeSessionId', type: 'text', index: true, unique: true, access: writtenByStripeOnly },
