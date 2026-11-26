@@ -6,7 +6,7 @@
 
 **Live:** https://revenue-without-noise.vercel.app · **Admin:** `/admin`
 
-![The live shop: Vouched memberships and bookable services, each with photo, price and buy button, under the test-mode banner](docs/images/shop.jpg)
+![The live shop as one path: meet the right people, belong to Vouched, build it together, then the individual go-to-market build; each product with photo, price and buy button, under the test-mode banner](docs/images/shop.jpg)
 
 ## What the shop sells
 
