@@ -28,6 +28,11 @@ service** (see `CLAUDE.md`):
 | Partner GTM Sprint | bookable service | 1,900 € |
 | Partner GTM Bootcamp | one-off day | 590 € |
 
+The shop shows them as one path to a go-to-market that runs on trust:
+**01 Meet the right people** (a roundtable seat, the bootcamp), **02 Belong**
+(the Vouched membership), **03 Build it together** (partner services), and at
+the end the individual go-to-market build, price on request.
+
 Decision-makers, partners and investors never pay: they apply through the
 "Apply to Vouched" form.
 
@@ -46,6 +51,7 @@ live at once, **without a redeploy**.
 | who applied | **Form Submissions** (admins only) |
 | paid and pending orders | **Orders** (read-only status, written by the server) |
 | texts on the shop, events, apply, thank-you and cancel pages (incl. the small "§ 01 · …" kicker lines) | **Globals** → *Shop*, *Events & Apply* |
+| the three steps of the shop (name and one or two sentences each) and the last step, the individual build | **Globals** → *Shop* → *Steps: names*, *Steps: what each brings*, *Last step* |
 | site name and link-preview text | **Globals** → *Site settings* |
 | the home page | **Pages** → *Home* |
 | the navigation and the "Book a call" button | **Globals** → *Header* |

@@ -241,6 +241,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  _objectKey?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -1143,6 +1144,7 @@ export interface EventsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  _objectKey?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1575,15 +1577,23 @@ export interface Shop {
   heading: string;
   intro?: string | null;
   /**
-   * The small label on each product card.
+   * The shop is one path in three steps: meet (one-off seats and days), belong (membership), build (services). The name of each step.
    */
   kindLabels?: {
-    membership?: string | null;
     oneOff?: string | null;
+    membership?: string | null;
     service?: string | null;
   };
   /**
-   * Points to the main website for work beyond the listed offers.
+   * One or two sentences under each step name.
+   */
+  kindIntros?: {
+    oneOff?: string | null;
+    membership?: string | null;
+    service?: string | null;
+  };
+  /**
+   * The end of the path, below the products: individual work, price on request.
    */
   custom?: {
     heading?: string | null;
@@ -1725,8 +1735,15 @@ export interface ShopSelect<T extends boolean = true> {
   kindLabels?:
     | T
     | {
-        membership?: T;
         oneOff?: T;
+        membership?: T;
+        service?: T;
+      };
+  kindIntros?:
+    | T
+    | {
+        oneOff?: T;
+        membership?: T;
         service?: T;
       };
   custom?:

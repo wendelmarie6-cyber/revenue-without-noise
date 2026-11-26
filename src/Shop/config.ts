@@ -28,18 +28,33 @@ export const Shop: GlobalConfig = {
     {
       name: 'kindLabels',
       type: 'group',
-      admin: { description: 'The small label on each product card.' },
+      label: 'Steps: names',
+      admin: {
+        description:
+          'The shop is one path in three steps: meet (one-off seats and days), belong (membership), build (services). The name of each step.',
+      },
       fields: [
-        { name: 'membership', type: 'text', defaultValue: 'Membership' },
-        { name: 'oneOff', type: 'text', defaultValue: 'One-off' },
-        { name: 'service', type: 'text', defaultValue: 'Service' },
+        { name: 'oneOff', type: 'text', defaultValue: 'Meet the right people' },
+        { name: 'membership', type: 'text', defaultValue: 'Belong: Vouched membership' },
+        { name: 'service', type: 'text', defaultValue: 'Build it together' },
+      ],
+    },
+    {
+      name: 'kindIntros',
+      type: 'group',
+      label: 'Steps: what each brings',
+      admin: { description: 'One or two sentences under each step name.' },
+      fields: [
+        { name: 'oneOff', type: 'textarea' },
+        { name: 'membership', type: 'textarea' },
+        { name: 'service', type: 'textarea' },
       ],
     },
     {
       name: 'custom',
       type: 'group',
-      label: 'Box below the products',
-      admin: { description: 'Points to the main website for work beyond the listed offers.' },
+      label: 'Last step: the full go-to-market build',
+      admin: { description: 'The end of the path, below the products: individual work, price on request.' },
       fields: [
         { name: 'heading', type: 'text', defaultValue: 'Something *bigger* in mind?' },
         {

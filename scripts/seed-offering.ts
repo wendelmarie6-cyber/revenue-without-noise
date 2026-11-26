@@ -1,6 +1,7 @@
-// Makes the offering clearer (decided 26 Nov 2026): the shop is grouped into
-// Vouched membership, one seat or one day, and partner services, and the event
-// formats get distinct names (Vouched AI Stammtisch, Vouched Roundtable).
+// Makes the offering clearer (decided 26 Nov 2026): the shop is one path to a
+// go-to-market that runs on trust – meet the right people, belong to Vouched,
+// build it together, and at the end the individual build. The event formats
+// get distinct names (Vouched AI Stammtisch, Vouched Roundtable).
 // Safe to run twice: a text is only replaced while it still has its earlier
 // seeded value, so anything edited in the admin panel is left alone.
 // Against the live database run it with NODE_ENV=production, so Payload does
@@ -17,32 +18,73 @@ const replaceIfSeeded = (current: unknown, old: (string | null | undefined)[], n
 const defined = <T extends object>(o: T) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>
 
-// 1. Shop: who it is for and the three ways in, said at the top
+// 1. Shop: one path, said at the top and named step by step
 const shop = await payload.findGlobal({ slug: 'shop', depth: 0 })
 const shopData = defined({
   heading: replaceIfSeeded(
     shop.heading,
-    ['Join Vouched, or *book a session*'],
-    'Join Vouched, *take a seat*, or book partner work',
+    ['Join Vouched, or *book a session*', 'Join Vouched, *take a seat*, or book partner work'],
+    'Go-to-market that runs *on trust*',
   ),
   intro: replaceIfSeeded(
     shop.intro,
-    ['Memberships are billed monthly and can be cancelled. Seats and sessions are paid once.'],
-    'For B2B software teams building their partner and go-to-market motion. Three ways in: a monthly membership for your team, one seat or one day, or partner work with a clear result.',
+    [
+      'Memberships are billed monthly and can be cancelled. Seats and sessions are paid once.',
+      'For B2B software teams building their partner and go-to-market motion. Three ways in: a monthly membership for your team, one seat or one day, or partner work with a clear result.',
+    ],
+    'For B2B software teams building their partner and go-to-market motion. Meet the right people, belong to the room, then build it together. Each step brings you closer to a pipeline that fills through partners, investors and customers who already trust you.',
   ),
 })
 const kinds = shop.kindLabels ?? {}
 const kindData = defined({
-  membership: replaceIfSeeded(kinds.membership, ['Membership', null, undefined], 'Vouched membership'),
-  oneOff: replaceIfSeeded(kinds.oneOff, ['One-off', null, undefined], 'One seat, one day'),
-  service: replaceIfSeeded(kinds.service, ['Service', null, undefined], 'Partner services'),
+  oneOff: replaceIfSeeded(kinds.oneOff, ['One-off', 'One seat, one day', null, undefined], 'Meet the right people'),
+  membership: replaceIfSeeded(
+    kinds.membership,
+    ['Membership', 'Vouched membership', null, undefined],
+    'Belong: Vouched membership',
+  ),
+  service: replaceIfSeeded(kinds.service, ['Service', 'Partner services', null, undefined], 'Build it together'),
+})
+const intros = shop.kindIntros ?? {}
+const introData = defined({
+  oneOff: replaceIfSeeded(
+    intros.oneOff,
+    [null, undefined, ''],
+    'One seat at one table, or one day with twenty founders. No subscription: trust starts with a conversation.',
+  ),
+  membership: replaceIfSeeded(
+    intros.membership,
+    [null, undefined, ''],
+    'The same faces, regularly. Trust grows with time and consistency, and with it come the intros to partners, investors and customers. Monthly, by team size.',
+  ),
+  service: replaceIfSeeded(
+    intros.service,
+    [null, undefined, ''],
+    'Turn the right contacts into a partner channel: which partner types fit and who first, then partner ICP, shortlist and first intros. Hands-on, not on slides.',
+  ),
+})
+const custom = shop.custom ?? {}
+const customData = defined({
+  heading: replaceIfSeeded(custom.heading, ['Something *bigger* in mind?'], 'Your go-to-market, *running*'),
+  text: replaceIfSeeded(
+    custom.text,
+    ['Go-to-market builds are configured individually, for your stage and your buyers. Price on request.'],
+    'The full build, configured for your stage and your buyers: positioning, partner channels, access to investors and decision-makers, a funnel that scales. Price on request.',
+  ),
 })
 await payload.updateGlobal({
   slug: 'shop',
-  data: { ...shopData, ...(Object.keys(kindData).length ? { kindLabels: { ...kinds, ...kindData } } : {}) },
+  data: {
+    ...shopData,
+    ...(Object.keys(kindData).length ? { kindLabels: { ...kinds, ...kindData } } : {}),
+    ...(Object.keys(introData).length ? { kindIntros: { ...intros, ...introData } } : {}),
+    ...(Object.keys(customData).length ? { custom: { ...custom, ...customData } } : {}),
+  },
   context: ctx,
 })
-payload.logger.info(`shop: ${[...Object.keys(shopData), ...Object.keys(kindData)].join(', ') || 'kept'}`)
+payload.logger.info(
+  `shop: ${[...Object.keys(shopData), ...Object.keys(kindData), ...Object.keys(introData), ...Object.keys(customData)].join(', ') || 'kept'}`,
+)
 
 // 2. Event formats: distinct names
 const page = await payload.findGlobal({ slug: 'events-page', depth: 0 })
