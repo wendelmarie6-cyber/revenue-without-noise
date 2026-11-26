@@ -6,6 +6,8 @@
 
 **Live:** https://revenue-without-noise.vercel.app · **Admin:** `/admin`
 
+![The live shop: Vouched memberships and bookable services, each with photo, price and buy button, under the test-mode banner](docs/images/shop.jpg)
+
 ## What the shop sells
 
 **Revenue without Noise** is a go-to-market practice in Munich ("More revenue.
@@ -176,6 +178,7 @@ while it is still pending.
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-events.ts
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-site.ts
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-design.ts
+   DATABASE_POOL_MAX=2 npx payload run scripts/seed-offering.ts
    ```
    Product photos (`scripts/product-photos/`) are uploaded to the live site
    with `NODE_ENV=production DATABASE_POOL_MAX=2 npx payload run

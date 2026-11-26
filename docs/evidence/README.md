@@ -1,4 +1,4 @@
-# Evidence: declined card and successful purchase (25 Nov 2026)
+# Evidence: declined card and successful purchase (25 and 26 Nov 2026)
 
 One checkout for *Roundtable seat* (39 €), local dev server against the
 shared database, Stripe sandbox, webhooks forwarded with `scripts/stripe-listen.sh`.
@@ -30,3 +30,27 @@ shared database, Stripe sandbox, webhooks forwarded with `scripts/stripe-listen.
 
 The same flow was run on the live Vercel site with the success card on
 25 Nov (order 10, paid via the live webhook).
+
+## Live site: declined card (26 Nov 2026)
+
+On https://revenue-without-noise.vercel.app, *Roundtable seat* (39 €), card
+`4000 0000 0000 0002`, tried twice. Stripe showed "Ihre Karte wurde
+abgelehnt" ("your card was declined") on its hosted page.
+
+What Stripe recorded (read through the API afterwards):
+
+```
+checkout session   status open, payment_status unpaid
+payment intent     requires_payment_method, last error card_declined (generic_decline)
+events             payment_intent.created, charge.failed, payment_intent.payment_failed (x2)
+                   no checkout.session.completed
+```
+
+What the app recorded:
+
+| id | product | status | amount | paid_at |
+|---|---|---|---|---|
+| 15 | Roundtable seat | pending | 3900 | – |
+
+So the live webhook never fired for this checkout and nothing was marked paid,
+next to the successful live purchase of 25 Nov (order 10, paid).
