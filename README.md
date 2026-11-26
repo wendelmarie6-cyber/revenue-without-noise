@@ -114,7 +114,7 @@ while it is still pending.
 2. **Webhook** (`src/app/(frontend)/api/stripe/webhook/route.ts`): verifies the
    signature on the raw body; anything unsigned or forged gets `400`.
 3. **The rule** (`src/stripe/fulfilment.ts`, tested in
-   `tests/int/fulfilment.int.spec.ts`): only a completed, paid session marks
+   `tests/unit/fulfilment.test.ts`): only a completed, paid session marks
    its order `paid`, and only if amount and currency match what the checkout
    asked for; a replay of the same event changes nothing.
 4. **A declined card** never completes the session, so no webhook arrives and
@@ -149,7 +149,11 @@ while it is still pending.
    Secrets live only in `.env` (git-ignored) and in Vercel's settings, never in
    the repository. Nothing secret has a `NEXT_PUBLIC_` prefix. The publishable
    key is not needed: Checkout is hosted by Stripe.
-3. Start the app and create the first admin user at http://localhost:3001/admin:
+3. Start the app and create the first admin user at http://localhost:3001/admin.
+   **Use a database of your own for development.** In development Payload
+   aligns the database schema with the code on start (`npm run dev` and every
+   `npx payload run` script); pointed at the production database, that would
+   change the live site's tables.
    ```bash
    npm run dev -- -p 3001
    ```
@@ -174,7 +178,7 @@ while it is still pending.
 ```bash
 npm run typecheck                                             # types
 npm run lint                                                  # lint
-npm test                                                      # unit + API tests (Vitest)
+npm test                                                      # unit tests of the paid rule (Vitest)
 DATABASE_POOL_MAX=2 npx payload run scripts/check-webhook.ts  # webhook end to end (dev server running)
 ```
 
@@ -239,4 +243,13 @@ member). Renewals (`invoice.paid`), cancellations
 and refunds come after the course. Also later: a German locale (Payload
 localization), email notifications for applications.
 
-Review reports live in [`docs/reviews/`](docs/reviews/).
+## Reviews and tests
+
+- AI code review of 25 Nov 2026 with every finding and what was done about it:
+  [`docs/reviews/2026-11-25-ai-code-review.md`](docs/reviews/2026-11-25-ai-code-review.md).
+  All review reports live in [`docs/reviews/`](docs/reviews/).
+- Tests, from fast to slow: unit tests of the paid rule
+  (`tests/unit/fulfilment.test.ts`, `npm test`); the webhook end to end
+  against a running app (`scripts/check-webhook.ts`); the daily live check in
+  GitHub Actions. Integration tests against a separate test database come
+  with the separate development database (see *Not done for the course*).

@@ -22,7 +22,7 @@ deploy). Five smaller findings, none blocking for the course.
 - The webhook verifies the signature on the raw body before anything else
   (`src/app/(frontend)/api/stripe/webhook/route.ts`).
 - The one rule that decides "paid" is a pure function with 7 unit tests
-  (`src/stripe/fulfilment.ts`, `tests/int/fulfilment.int.spec.ts`).
+  (`src/stripe/fulfilment.ts`, `tests/unit/fulfilment.test.ts`).
 - Orders cannot be created through the API; status and Stripe-reported fields
   cannot be written through the admin panel or REST (`src/collections/Orders.ts`).
 - Products and events: anyone reads published entries, only an admin writes.
@@ -41,7 +41,7 @@ deploy). Five smaller findings, none blocking for the course.
 | 5 | minor | `thank-you/RefreshWhilePending.tsx:16` | After about a minute without a webhook the page stops refreshing but keeps saying "Confirming…" with no next step. | **Partly fixed.** The page now keeps checking every 15 s for 10 minutes, so a late webhook still shows up. A "this takes longer" text belongs in the CMS, which needs a new database column; that waits for the separate development database and migrations. |
 
 Fixes landed on 25 Nov 2026 in the commit after `995aa26`, test first
-(`tests/int/fulfilment.int.spec.ts`: 7 → 11 tests).
+(`tests/unit/fulfilment.test.ts`: 7 → 11 tests).
 
 ## Verification of the fixes
 
