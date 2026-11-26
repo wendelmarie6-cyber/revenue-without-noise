@@ -130,6 +130,19 @@ while it is still pending.
   API at all, only by server code.
 - **Form submissions:** anyone can submit; only an admin can read; nobody edits.
 
+## Key decisions and the alternatives
+
+| Decision | Chosen | Alternatives and why they lost |
+|---|---|---|
+| Payment page | **Stripe hosted Checkout** | *Payment Element* in our own page: more control, but card data and 3-D Secure handling move into our code. *Payment Links*: prices live in Stripe, so the CMS would no longer be the one place to change a price. |
+| Where prices live | **In the CMS**, sent to Stripe per checkout (`price_data`) | Stripe Products and Prices synced from the CMS: a second copy of every price and a sync job that can drift. Cost of the choice: Stripe's dashboard shows no product catalogue. |
+| What counts as paid | **The signed webhook** (`checkout.session.completed`, `checkout.session.async_payment_succeeded`) | The thank-you page: anyone can open it, and a customer can close the tab first. Asking Stripe's API from the thank-you page: still depends on the customer staying. |
+| Membership billing | **Stripe subscription**, only the first confirmation handled | One-off yearly payment: simpler, but not what a monthly membership is. Renewals and cancellations are separate webhook events, see *Out of scope*. |
+| CMS | **Payload inside the Next.js app** | A hosted CMS (Contentful, Sanity): a second service and account, content fetched over HTTP, access rules outside the code. Payload is one repo, one deploy, and its Local API runs on the server without a network hop. |
+| Database | **Postgres on Supabase** | SQLite: Vercel's serverless functions have no lasting disk. MongoDB: possible with Payload, but Postgres and Supabase were already known from Sprints 2 and 3. On Vercel the *transaction* pooler (port 6543), because the session pooler allows only 15 clients and every serverless instance opens its own. |
+| Product photos | **Vercel Blob** | The local disk: on Vercel it is read-only and gone after each deploy. Supabase Storage or S3: works through Payload's S3 adapter, but needs a bucket, keys and a policy; Blob is one token and an official Payload adapter. |
+| Freshness | **Every page reads the CMS on each request** (`force-dynamic`) | Static pages with revalidation: faster, but a change would need a revalidation hook per page before it shows. At this traffic one database read per page view costs nothing noticeable. |
+
 ## Run it locally
 
 1. Node 22.23.4+ (or 24.22.1+, see `engines` in `package.json`) and npm, then

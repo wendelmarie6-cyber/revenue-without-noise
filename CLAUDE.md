@@ -52,28 +52,10 @@ Course plan: `~/Documents/GitHub/sprint4/PROJEKTPLAN.md` (Teil 7).
 
 ## Rules
 
-- **Test mode only.** Stripe keys start with `sk_test_` / `pk_test_`. Never a
-  live key, never a real card. Every page with a buy button shows
-  "Test mode – no real payments".
-- **Not on the real domain** while Stripe is in test mode. The shop is
-  reviewed at its Vercel address; the Lovable site stays as it is.
-- **Secrets only in environment variables** (`.env` locally, Vercel settings
-  when deployed): `DATABASE_URL`, `PAYLOAD_SECRET`, `STRIPE_SECRET_KEY`,
-  `STRIPE_WEBHOOK_SECRET`, and the rest. Never in code, comments, commit
-  messages or the repository. `.env` is git-ignored. The Stripe secret key and
-  the webhook secret are read on the server only; nothing secret gets a
-  `NEXT_PUBLIC_` prefix.
-- **Access rule for products:** anyone can view, only a logged-in admin can
-  create, edit or delete.
-- **No real people's details** in code, seed data or examples. Client
-  references only with the client's written approval.
-- **Packages:** ask before adding one. Payload and Stripe work from their
-  agent skills (`.claude/skills/payload`, the `stripe` plugin), not from
-  memory.
-- **Language:** the site is in **English first** (decided 11 Nov 2026: the
-  reviewer reads English, and the go-to-market audience is international).
-  German follows later as a second locale through Payload's localization;
-  do not hard-code copy in either language, it lives in the CMS.
-- **Git:** commit only when asked; descriptive messages, never "updates";
-  stage files by name, never `git add -A`; show the diff first. Code and
-  commit messages in English; conversation in German.
+The rules every coding agent follows (Claude Code, Codex, any other) live in
+`AGENTS.md`, together with the Next.js notes and the documentation check:
+
+@AGENTS.md
+
+Claude-specific: Payload and Stripe work from their agent skills
+(`.claude/skills/payload`, the `stripe` plugin), not from memory.
