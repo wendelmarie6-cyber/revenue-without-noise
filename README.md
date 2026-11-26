@@ -177,9 +177,12 @@ while it is still pending.
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-site.ts
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-design.ts
    ```
-   Product photos (`scripts/product-photos/`) are uploaded with
-   `DATABASE_POOL_MAX=2 npx payload run scripts/upload-product-photos.ts`; it
-   needs `BLOB_READ_WRITE_TOKEN`, because the photos must reach the live site.
+   Product photos (`scripts/product-photos/`) are uploaded to the live site
+   with `NODE_ENV=production DATABASE_POOL_MAX=2 npx payload run
+   scripts/upload-product-photos.ts` (add `REPLACE_PHOTOS=1` to swap existing
+   ones). It needs `BLOB_READ_WRITE_TOKEN`, because the photos must reach the
+   live site; `NODE_ENV=production` keeps Payload from changing the live
+   database schema.
 5. In a second terminal, forward Stripe's sandbox webhooks to the app, copy
    the printed `whsec_…` into `.env` and restart the dev server:
    ```bash
