@@ -26,6 +26,10 @@ export const plugins: Plugin[] = [
   // (local development) Payload keeps writing to the local disk as before.
   vercelBlobStorage({
     enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    // Keep the plugin's column (media._objectKey) in the schema even without
+    // the token, so development and the live site have the same schema and a
+    // migration written locally never drops it.
+    alwaysInsertFields: true,
     collections: { media: true },
     token: process.env.BLOB_READ_WRITE_TOKEN,
   }),

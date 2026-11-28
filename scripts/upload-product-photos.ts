@@ -2,18 +2,17 @@
 // media collection and links it to the product, as an owner would do in the
 // admin panel. Products that already have a photo are left alone, unless
 // REPLACE_PHOTOS=1 is set: then the new photo is linked and the old one deleted.
-// Run against production with NODE_ENV=production, so Payload does not align
-// the database schema with the code on start:
-//   NODE_ENV=production DATABASE_POOL_MAX=2 npx payload run scripts/upload-product-photos.ts
-//
-// Needs BLOB_READ_WRITE_TOKEN in .env: the database is shared with the live
-// site, so a photo stored only on this computer would be missing on Vercel.
+// Locally the photos go to the development database and the local disk:
+//   DATABASE_POOL_MAX=2 npx payload run scripts/upload-product-photos.ts
+// For the live site they must go to Vercel Blob, so run it through
+// with-prod-db.sh, which also passes the Blob token:
+//   sh scripts/with-prod-db.sh npx payload run scripts/upload-product-photos.ts
 import config from '@payload-config'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
 
-if (!process.env.BLOB_READ_WRITE_TOKEN) {
+if (process.env.NODE_ENV === 'production' && !process.env.BLOB_READ_WRITE_TOKEN) {
   throw new Error('BLOB_READ_WRITE_TOKEN is not set: photos would not reach the live site.')
 }
 

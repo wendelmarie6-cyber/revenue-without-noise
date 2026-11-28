@@ -4,9 +4,8 @@
 // get distinct names (Vouched AI Stammtisch, Vouched Roundtable).
 // Safe to run twice: a text is only replaced while it still has its earlier
 // seeded value, so anything edited in the admin panel is left alone.
-// Against the live database run it with NODE_ENV=production, so Payload does
-// not change the schema on start:
-//   NODE_ENV=production DATABASE_POOL_MAX=2 npx payload run scripts/seed-offering.ts
+// Locally:          DATABASE_POOL_MAX=2 npx payload run scripts/seed-offering.ts
+// On the live site: sh scripts/with-prod-db.sh npx payload run scripts/seed-offering.ts
 import config from '@payload-config'
 import { getPayload } from 'payload'
 

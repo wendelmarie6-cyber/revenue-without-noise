@@ -149,6 +149,7 @@ while it is still pending.
 | CMS | **Payload inside the Next.js app** | A hosted CMS (Contentful, Sanity): a second service and account, content fetched over HTTP, access rules outside the code. Payload is one repo, one deploy, and its Local API runs on the server without a network hop. |
 | Database | **Postgres on Supabase** | SQLite: Vercel's serverless functions have no lasting disk. MongoDB: possible with Payload, but Postgres and Supabase were already known from Sprints 2 and 3. On Vercel the *transaction* pooler (port 6543), because the session pooler allows only 15 clients and every serverless instance opens its own. |
 | Product photos | **Vercel Blob** | The local disk: on Vercel it is read-only and gone after each deploy. Supabase Storage or S3: works through Payload's S3 adapter, but needs a bucket, keys and a policy; Blob is one token and an official Payload adapter. |
+| Development database | **A second Supabase project**, schema changes reach the live database only as **migrations** (`src/migrations/`) | One shared database: what the course started with, but in development Payload aligns the schema with the code on every start, so a half-finished field could change the live tables. Schema push on the live database too: no record of what changed and no way to review it before it runs. |
 | Freshness | **Every page reads the CMS on each request** (`force-dynamic`) | Static pages with revalidation: faster, but a change would need a revalidation hook per page before it shows. At this traffic one database read per page view costs nothing noticeable. |
 
 ## Run it locally
@@ -159,25 +160,28 @@ while it is still pending.
 
    | Variable | Where the value comes from |
    |---|---|
-   | `DATABASE_URL` | Supabase → your project → **Connect** → Session pooler (port 5432) URI, with your database password |
+   | `DATABASE_URL` | the **development** database: a Supabase project of its own → **Connect** → Session pooler (port 5432) URI, with its password ([percent-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) if it has special characters) |
+   | `PROD_DATABASE_URL` | the live database, same format; only `scripts/with-prod-db.sh` reads it |
    | `DATABASE_POOL_MAX` | `2` (Supabase's session pooler allows 15 clients in total) |
    | `PAYLOAD_SECRET`, `CRON_SECRET`, `PREVIEW_SECRET` | any long random strings, e.g. `openssl rand -hex 32` |
    | `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3001` |
    | `STRIPE_SECRET_KEY` | Stripe Dashboard (sandbox) → Developers → API keys → secret key `sk_test_…` |
    | `STRIPE_WEBHOOK_SECRET` | printed by `sh scripts/stripe-listen.sh` (`whsec_…`) |
-   | `BLOB_READ_WRITE_TOKEN` | leave empty locally (uploads go to the local disk) |
+   | `PROD_BLOB_READ_WRITE_TOKEN` | Vercel → Storage → the Blob store → token; only `scripts/with-prod-db.sh` passes it on. Locally uploads go to the local disk |
 
    Secrets live only in `.env` (git-ignored) and in Vercel's settings, never in
    the repository. Nothing secret has a `NEXT_PUBLIC_` prefix. The publishable
    key is not needed: Checkout is hosted by Stripe.
-3. Start the app and create the first admin user at http://localhost:3001/admin.
-   **Use a database of your own for development.** In development Payload
-   aligns the database schema with the code on start (`npm run dev` and every
-   `npx payload run` script); pointed at the production database, that would
-   change the live site's tables.
+3. Build the schema in the empty development database, then start the app
+   and create the first admin user at http://localhost:3001/admin:
    ```bash
+   NODE_ENV=production DATABASE_POOL_MAX=2 npx payload migrate
    npm run dev -- -p 3001
    ```
+   In development Payload aligns the schema with the code on start
+   (`npm run dev` and every `npx payload run` script). That is why
+   `DATABASE_URL` points at the development database and the live one is
+   reached only through `scripts/with-prod-db.sh` (see *Database changes*).
 4. Seed the content (idempotent, never overwrites admin edits):
    ```bash
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-products.ts
@@ -186,12 +190,12 @@ while it is still pending.
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-design.ts
    DATABASE_POOL_MAX=2 npx payload run scripts/seed-offering.ts
    ```
-   Product photos (`scripts/product-photos/`) are uploaded to the live site
-   with `NODE_ENV=production DATABASE_POOL_MAX=2 npx payload run
-   scripts/upload-product-photos.ts` (add `REPLACE_PHOTOS=1` to swap existing
-   ones). It needs `BLOB_READ_WRITE_TOKEN`, because the photos must reach the
-   live site; `NODE_ENV=production` keeps Payload from changing the live
-   database schema.
+   Product photos (`scripts/product-photos/`):
+   `DATABASE_POOL_MAX=2 npx payload run scripts/upload-product-photos.ts`
+   (add `REPLACE_PHOTOS=1` to swap existing ones). Locally they go to the
+   local disk; for the live site run the same command through
+   `sh scripts/with-prod-db.sh …`, which sends them to Vercel Blob. The
+   seeds run on the live site the same way.
 5. In a second terminal, forward Stripe's sandbox webhooks to the app, copy
    the printed `whsec_…` into `.env` and restart the dev server:
    ```bash
@@ -232,6 +236,28 @@ https://revenue-without-noise.vercel.app. Environment variables in Vercel:
   `BLOB_READ_WRITE_TOKEN`; uploaded product photos are stored there.
 - The site stays off revenuewithoutnoise.com while Stripe is in the sandbox.
 
+### Database changes (migrations)
+
+Development and the live site have separate Supabase databases. A change to a
+collection or field reaches the live database only as a migration:
+
+1. Change the field in code; `npm run dev` updates the development database.
+2. Write the migration (SQL generated from the code, reviewed in the diff):
+   ```bash
+   NODE_ENV=production DATABASE_POOL_MAX=2 npx payload migrate:create name-of-change
+   ```
+3. Commit it, then apply it to the live database before the deploy that needs it:
+   ```bash
+   sh scripts/with-prod-db.sh npx payload migrate:status
+   sh scripts/with-prod-db.sh npx payload migrate
+   ```
+
+`20261128_105115_baseline` is the schema as it was on 28 Nov 2026 (on a new
+database it builds every table); `20261128_105500_drop_template_leftovers`
+removes empty columns and types the website template had left in the live
+database; `20261128_105834_media_storage_fields` adds the Blob plugin's
+`prefix` column, which is now in the schema everywhere.
+
 ## Optional tasks delivered
 
 | Task | Where to see it |
@@ -242,8 +268,11 @@ https://revenue-without-noise.vercel.app. Environment variables in Vercel:
 | **A scheduled health check** (hard) | `.github/workflows/health-check.yml`: daily, checks pages, that products load and that an unsigned webhook is rejected |
 | **A written go-live plan** (hard) | [`docs/go-live-plan.md`](docs/go-live-plan.md) |
 
-Not done for the course: separate development and production databases,
-custom domain, instant-rollback rehearsal, migration flow, deployment pipeline.
+Also delivered: **separate development and production databases with a
+migration flow** (see *Database changes*).
+
+Not done for the course: custom domain, instant-rollback rehearsal,
+deployment pipeline.
 
 ## Review walkthrough
 
@@ -276,5 +305,5 @@ localization), email notifications for applications.
 - Tests, from fast to slow: unit tests of the paid rule
   (`tests/unit/fulfilment.test.ts`, `npm test`); the webhook end to end
   against a running app (`scripts/check-webhook.ts`); the daily live check in
-  GitHub Actions. Integration tests against a separate test database come
-  with the separate development database (see *Not done for the course*).
+  GitHub Actions. `check-webhook.ts` runs against the development database,
+  so the test order never touches the live one.

@@ -51,9 +51,12 @@ someone reached the thank-you page.
 - **Git:** commit only when asked; descriptive messages, never "updates";
   stage files by name, never `git add -A`; show the diff first. Code and
   commit messages in English; conversation in German.
-- **Development has its own database.** `npm run dev` and every
-  `npx payload run` script align the database schema with the code. Never
-  point them at the production database.
+- **Development has its own database.** `DATABASE_URL` in `.env` is the
+  development database; `npm run dev` and every `npx payload run` script
+  align its schema with the code. The live database is reached only through
+  `sh scripts/with-prod-db.sh <command>`, and its schema changes only through
+  migrations in `src/migrations/` (README, *Database changes*). Ask before
+  running anything against it.
 
 ## Checks: run them, then report them
 
